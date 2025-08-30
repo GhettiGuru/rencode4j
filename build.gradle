@@ -8,16 +8,16 @@ import groovy.json.JsonSlurper
 import java.text.SimpleDateFormat
 
 group = 'com.github.GhettiGuru'
-
-// Base version
 def baseVersion = '1.2.0'
-def ghUsername = System.getenv("GH_USERNAME")
-def ghToken = System.getenv("GH_TOKEN")
 def repoName = 'rencode4j'
+
+// Load GitHub credentials from environment variables or Gradle properties
+def ghUsername = System.getenv("GH_USERNAME") ?: project.findProperty("GH_USERNAME")
+def ghToken = System.getenv("GH_TOKEN") ?: project.findProperty("GH_TOKEN")
 
 // Function to check if version exists in GitHub Packages
 def versionExists(version) {
-    if (!ghToken) return false
+    if (!ghToken || !ghUsername) return false
     try {
         def apiUrl = "https://api.github.com/orgs/${ghUsername}/packages/maven/${repoName}/versions"
         def connection = new URL(apiUrl).openConnection()
@@ -31,7 +31,7 @@ def versionExists(version) {
     }
 }
 
-// Set project version: append timestamp if base version exists
+// Determine final version
 def finalVersion = baseVersion
 if (versionExists(baseVersion)) {
     def timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
@@ -73,14 +73,14 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/${ghUsername}/${repoName}")
             credentials {
-                username = ghUsername
-                password = ghToken
+                username = ghUsername ?: ""
+                password = ghToken ?: ""
             }
         }
     }
 }
 
-// Ensure publishing only runs if GH_TOKEN exists
+// Skip publishing if secrets are missing
 tasks.named('publishMavenJavaPublicationToGitHubPackagesRepository') {
-    onlyIf { ghToken != null }
+    onlyIf { ghUsername && ghToken }
 }
