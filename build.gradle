@@ -4,12 +4,12 @@ plugins {
     id 'eclipse'
 }
 
-group = 'com.github.jksiezni'
+group = 'com.github.GhettiGuru'
 version = '1.2.0-SNAPSHOT'
 
 repositories {
-    mavenLocal()
     mavenCentral()
+    mavenLocal
 }
 
 java {
@@ -40,17 +40,19 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            groupId = project.group
-            artifactId = project.name
-            version = project.version
-
-            artifact tasks.named('sourceJar')
+            groupId = 'com.github.GhettiGuru'
+            artifactId = 'rencodej4'
+            version = '1.2.0'
         }
     }
     repositories {
         maven {
-            name = "local"
-            url = uri("${buildDir}/repo") // Optional: Publish to a local folder
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/GhettiGuru/rencodej4")
+            credentials {
+                username = findProperty("GH_USERNAME") ?: System.getenv("GH_USERNAME")
+                password = findProperty("GH_TOKEN") ?: System.getenv("GH_TOKEN")
+            }
         }
     }
 }
