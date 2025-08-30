@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.0'
     id 'maven-publish'
     id 'eclipse'
 }
@@ -11,8 +10,8 @@ version = '1.2.0'
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
     withJavadocJar()
-    withSourcesJar() // automatically generates sources jar
 }
 
 repositories {
@@ -21,34 +20,25 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    testImplementation "junit:junit:4.+"
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    testImplementation 'junit:junit:4.+'
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-
             groupId = 'com.github.GhettiGuru'
-            artifactId = 'rencodej4'
+            artifactId = 'rencode4j' // must match repo name
             version = project.version
         }
     }
-
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/GhettiGuru/rencodej4")
+            url = uri("https://maven.pkg.github.com/GhettiGuru/rencode4j")
             credentials {
-                username = findProperty("GH_USERNAME") ?: System.getenv("GH_USERNAME")
-                password = findProperty("GH_TOKEN") ?: System.getenv("GH_TOKEN")
+                username = System.getenv("GH_USERNAME")
+                password = System.getenv("GH_TOKEN")
             }
         }
     }
