@@ -1,23 +1,6 @@
-/*
- * Copyright (C) 2020 Jakub Ksiezniak
- *
- *     This program is free software; you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation; either version 2 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License along
- *     with this program; if not, write to the Free Software Foundation, Inc.,
- *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 plugins {
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.0'
     id 'maven-publish'
     id 'eclipse'
 }
@@ -37,17 +20,15 @@ repositories {
     mavenLocal()
 }
 
-dependencies {
-    testImplementation 'junit:junit:4.+'
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
-jar {
-    manifest {
-        attributes(
-            'Implementation-Title': 'Java implementation of rencode serialization algorithm',
-            'Implementation-Version': version
-        )
-    }
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    testImplementation "junit:junit:4.+"
 }
 
 tasks.register('sourceJar', Jar) {
@@ -61,18 +42,22 @@ publishing {
             from components.java
 
             groupId = 'com.github.GhettiGuru'
-            artifactId = 'rencode4j'
+            artifactId = 'rencodej4'
             version = project.version
 
-            // Include sources jar automatically
             artifact tasks.named('sourceJar')
+
+            // Explicitly declare dependency to avoid metadata generation error
+            tasks.named("generateMetadataFileForMavenJavaPublication") {
+                dependsOn tasks.named("sourceJar")
+            }
         }
     }
 
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/GhettiGuru/rencode4j") // GitHub repo URL
+            url = uri("https://maven.pkg.github.com/GhettiGuru/rencodej4")
             credentials {
                 username = findProperty("GH_USERNAME") ?: System.getenv("GH_USERNAME")
                 password = findProperty("GH_TOKEN") ?: System.getenv("GH_TOKEN")
